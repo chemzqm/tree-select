@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Example of tree-select</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="stylesheet" href="build/build.css">
+    <script src="build/build.js"></script>
+    <style>
+      body {
+        padding:100px;
+      }
+    </style>
+  </head>
+  <body>
+    <button id="enable">enable</button>
+    <button id="disable">disable</button>
+    <button id="reset">reset</button>
+    <div class="group">
+      <label for="select">测试</label>
+      <input type="hidden" id="select" name="select" style="width:300px" tabindex="-1" class="select2-offscreen">
+    </div>
+    <p>
+      <span id="value"></span>
+    </p>
+
+    <div class="group">
+      <input type="hidden" id="select1" name="select" style="width:300px" tabindex="-1" class="select2-offscreen">
+    </div>
+    <button id="rebuild">rebuild</button>
+
+    <script>
+      var TreeSelect = require('tree-select');
+      var data = [{
+        name: '受众群体',
+        values: [{
+          id: 0,
+          text: '人口属性'
+        }, {
+          id: 1,
+          text: '访问者行为'
+        }, {
+          id: 2,
+          text: '技术参数'
+        }, {
+          id: 3,
+          text: '移动设备'
+        }]
+      }, {
+        name: '广告数据',
+        values: [{
+          id: 4,
+          text: '点击引导'
+        }, {
+          id: 5,
+          text: '曝光引导'
+        }]
+      }]
+      var el = document.getElementById('select');
+      var select = new TreeSelect(el, {
+          placeholder: '请选择指标',
+          data: data
+      });
+      select.value(4);
+
+      var s1 = document.getElementById('select1');
+      var select1 = new TreeSelect(s1, {
+        placeholder: '请选择指标',
+        data: [
+          {id: 1, text: 'Beijing'},
+          {id: 2, text: 'Shanghai'},
+          {id: 3, text: 'Shenzhen'}
+        ]
+      });
+
+      var enable = document.getElementById('enable');
+      enable.addEventListener('click', function(){
+        select.show();
+      });
+
+      var disable = document.getElementById('disable');
+      disable.addEventListener('click', function(){
+        select.hide();
+      });
+
+      var reset = document.getElementById('reset');
+      reset.addEventListener('click', function(){
+        select.reset();
+      });
+
+      select.on('change', function(v){
+        var el = document.getElementById('value');
+        el.innerHTML = v;
+      });
+
+      var rebuild = document.getElementById('rebuild');
+      rebuild.addEventListener('click', function(){
+        select1.rebuild([
+          {id: 4, text: 'Tianjing'},
+          {id: 5, text: 'Jining'},
+          {id: 6, text: 'Sichuan'}
+        ]);
+      });
+    </script>
+  </body>
+</html>
