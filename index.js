@@ -46,6 +46,7 @@ TreeSelect.prototype.renderData = function(data) {
   var v = this.source.val(), li, id;
   if (v) {
     li = this.dropdown.find('[data-id="' + v + '"]');
+    //no change event
     if (li.length === 0) return this.source.val('');
     id = li.attr('data-id');
     this.value(id);
@@ -180,10 +181,6 @@ TreeSelect.prototype.reset = function() {
 }
 
 TreeSelect.prototype.rebuild = function(data) {
-  if (this.rendered) {
-    this.reset();
-    this.dropdown.html('');
-  }
   this.renderData(data);
 }
 
