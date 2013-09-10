@@ -33,6 +33,7 @@ TreeSelect.prototype.selectDefault = function() {
 }
 
 TreeSelect.prototype.renderData = function(data) {
+  this.data = data;
   data.forEach(function(o) {
     var parent = this.dropdown;
     if (Array.isArray(o.values)) {
