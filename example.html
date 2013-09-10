@@ -103,6 +103,8 @@
           {id: 3, text: 'Shenzhen'}
         ]);
       select1.placeholder('请选择');
+      var ids = select1.ids();
+      console.log(ids);
 
       var rebuild = document.getElementById('rebuild');
       rebuild.addEventListener('click', function(){

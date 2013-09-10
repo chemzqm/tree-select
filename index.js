@@ -187,4 +187,10 @@ TreeSelect.prototype.rebuild = function(data) {
   this.renderData(data);
 }
 
+TreeSelect.prototype.ids = function() {
+  return $.map(this.dropdown.find('.treeselect-item'), function (li) {
+    return $(li).attr('data-id');
+  })
+}
+
 module.exports = TreeSelect;
