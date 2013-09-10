@@ -56,21 +56,10 @@
         }]
       }]
       var el = document.getElementById('select');
-      var select = new TreeSelect(el, {
-          placeholder: '请选择指标',
-          data: data
-      });
+      var select = new TreeSelect(el, data);
+      select.placeholder('请选择指标');
       select.value(4);
 
-      var s1 = document.getElementById('select1');
-      var select1 = new TreeSelect(s1, {
-        placeholder: '请选择指标',
-        data: [
-          {id: 1, text: 'Beijing'},
-          {id: 2, text: 'Shanghai'},
-          {id: 3, text: 'Shenzhen'}
-        ]
-      });
 
       var enable = document.getElementById('enable');
       enable.addEventListener('click', function(){
@@ -91,6 +80,15 @@
         var el = document.getElementById('value');
         el.innerHTML = v;
       });
+
+      var s1 = document.getElementById('select1');
+      var select1 = new TreeSelect(s1, [
+          {id: 1, text: 'Beijing'},
+          {id: 2, text: 'Shanghai'},
+          {id: 3, text: 'Shenzhen'}
+        ]);
+
+      select1.placeholder('请选择');
 
       var rebuild = document.getElementById('rebuild');
       rebuild.addEventListener('click', function(){

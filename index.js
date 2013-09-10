@@ -3,21 +3,25 @@ var template = require('./template');
 var $ = require('jquery');
 var keyname = require('keyname');
 
-function TreeSelect (input, config) {
+function TreeSelect (input, data) {
   this.source = $(input);
   this.el = $(template).insertBefore(input);
   this.container= this.el.find('.treeselect-container');
   this.dropdown = this.el.find('.treeselect-drop');
   var w = this.source.width();
   this.el.width(w);
-  this.opts = config;
-  var data = this.opts.data;
-  this.renderData(data)
-  this.el.find('.treeselect-chosen').html(config.placeholder);
+  if (data) { this.renderData(data); }
   this.initEvents();
 }
 
 Emitter(TreeSelect.prototype);
+
+TreeSelect.prototype.placeholder = function(placeholder) {
+  this._placeholder = placeholder;
+  if (this.el.find('.treeselect-choice').hasClass('treeselect-default')) {
+    this.el.find('.treeselect-chosen').html(placeholder);
+  }
+}
 
 TreeSelect.prototype.renderData = function(data) {
   data.forEach(function(o) {
@@ -25,7 +29,7 @@ TreeSelect.prototype.renderData = function(data) {
     if (Array.isArray(o.values)) {
       this.addGroup(parent, o);
     } else {
-      this.addItem(parent, o.value, o.text);
+      this.addItem(parent, o.id, o.text);
     }
   }.bind(this));
 }
@@ -35,18 +39,6 @@ TreeSelect.prototype.initEvents = function() {
   this.container.on('click', this._containerClick);
   this._dropdownClick = this.dropdownClick.bind(this);
   this.dropdown.on('click', this._dropdownClick);
-  //删除一个已有选项
-  //$(document).on('keydown', function(e) {
-  //  if (!this.container.hasClass('treeselect-focus')) return;
-  //  var key = keyname(e.which);
-  //  switch(key) {
-  //    case 'backspace':
-  //      var id = this.el.find('.treeselect-search-choice:last').attr('data-id');
-  //      this.removeItem(id);
-  //      break;
-  //    default:
-  //  }
-  //}.bind(this))
 }
 
 TreeSelect.prototype.remove = function() {
@@ -58,10 +50,6 @@ TreeSelect.prototype.remove = function() {
 TreeSelect.prototype.containerClick = function(e) {
   e.stopPropagation();
   var target = $(e.target);
-  //移除按钮
-  //if (target.hasClass('treeselect-search-choice-close')) {
-  //  return target.parent().remove();
-  //}
   if (this.container.hasClass('treeselect-dropdown-open')) {
     this.container.removeClass('treeselect-dropdown-open');
     this.dropdown.hide();
@@ -126,7 +114,7 @@ TreeSelect.prototype.addGroup = function(parent, data) {
   title.appendTo(parent);
   ul.appendTo(parent);
   data.values.forEach(function(o) {
-    this.addItem(ul, o.value, o.text);
+    this.addItem(ul, o.id, o.text);
   }.bind(this));
 }
 
@@ -159,8 +147,8 @@ TreeSelect.prototype.value = function(v) {
 TreeSelect.prototype.reset = function() {
   this.source.val('');
   this._v = '';
-  var text = this.opts.placeholder;
-  this.container.find('.treeselect-chosen').html(text);
+  var text = this._placeholder;
+  if (text) this.container.find('.treeselect-chosen').html(text);
   this.dropdown.find('.treeselect-item').show();
   this.container.find('.treeselect-choice').addClass('treeselect-default');
   this.emit('change', '');
