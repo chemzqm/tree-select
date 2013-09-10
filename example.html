@@ -17,16 +17,23 @@
     <button id="reset">reset</button>
     <div class="group">
       <label for="select">测试</label>
-      <input type="hidden" id="select" name="select" style="width:300px" tabindex="-1" class="select2-offscreen">
+      <input type="hidden" id="select" name="select" style="width:300px" class="select2-offscreen" value="3">
     </div>
     <p>
       <span id="value"></span>
     </p>
 
     <div class="group">
-      <input type="hidden" id="select1" name="select" style="width:300px" tabindex="-1" class="select2-offscreen">
+      Rebuild
+      <input type="hidden" id="select1" name="select1" style="width:300px" class="select2-offscreen">
     </div>
     <button id="rebuild">rebuild</button>
+
+    <div class="group">
+      Lazy data
+      <input type="hidden" id="select2" name="select2" style="width:300px" value="9">
+    </div>
+    <button id="reload">reload</button>
 
     <script>
       var TreeSelect = require('tree-select');
@@ -58,8 +65,6 @@
       var el = document.getElementById('select');
       var select = new TreeSelect(el, data);
       select.placeholder('请选择指标');
-      select.value(4);
-
 
       var enable = document.getElementById('enable');
       enable.addEventListener('click', function(){
@@ -87,7 +92,6 @@
           {id: 2, text: 'Shanghai'},
           {id: 3, text: 'Shenzhen'}
         ]);
-
       select1.placeholder('请选择');
 
       var rebuild = document.getElementById('rebuild');
@@ -97,7 +101,19 @@
           {id: 5, text: 'Jining'},
           {id: 6, text: 'Sichuan'}
         ]);
-      });
+      }, false);
+
+      var reload = document.getElementById('reload');
+      var s2 = document.getElementById('select2');
+      var select2 = new TreeSelect(s2);
+      select2.selectDefault();
+      reload.addEventListener('click', function(){
+        select2.rebuild([
+            {id: 7, text: 'Guangzhou'},
+            {id: 8, text: 'Baotou'},
+            {id: 9, text: 'Xian'}
+        ])
+      }, false);
     </script>
   </body>
 </html>
