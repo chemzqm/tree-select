@@ -22,6 +22,10 @@
 
 * `data` should contain objects with `id` and `text` attributes or `name `and `values` attributes for unselectable group element.
 
+### TreeSelect#placeholder(text)
+
+Set placeholder with `text`.
+
 ### TreeSelect#value([value])
 
 Get or set the value.
