@@ -155,31 +155,28 @@ TreeSelect.prototype.removeItem = function(id) {
 TreeSelect.prototype.value = function(v) {
   if (arguments.length === 0) return this.source.val();
   var pre = this.source.val();
-  var li = this.dropdown.find('[data-id="' + v + '"]');
-  if (li.length > 0 && v.toString() !== this._v) {
-    this._v = v.toString();
-    this.dropdown.find('.treeselect-item').show();
+  this.dropdown.find('.treeselect-item').show();
+  this.source.val(v);
+  if (!v) {
+    var text = this._placeholder;
+    if (text) {
+      this.container.find('.treeselect-chosen').html(text);
+      this.container.find('.treeselect-choice').addClass('treeselect-default');
+    }
+  } else {
+    var li = this.dropdown.find('[data-id="' + v + '"]');
     li.hide();
     var text = li.html();
     this.container.find('.treeselect-chosen').html(text);
-    this.source.val(v);
     this.container.find('.treeselect-choice').removeClass('treeselect-default');
-    if (pre != v) {
-      this.emit('change', v);
-    }
+  }
+  if (pre != v) {
+    this.emit('change', v);
   }
 }
 
 TreeSelect.prototype.reset = function() {
-  this.source.val('');
-  this._v = '';
-  var text = this._placeholder;
-  if (text) {
-    this.container.find('.treeselect-chosen').html(text);
-    this.container.find('.treeselect-choice').addClass('treeselect-default');
-  }
-  this.dropdown.find('.treeselect-item').show();
-  this.emit('change', '');
+  this.value('');
 }
 
 TreeSelect.prototype.rebuild = function(data) {
