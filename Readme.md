@@ -2,6 +2,8 @@
 
   A simple tree select component
 
+  [Demo](http://chemzqm.github.io/tree-select/index.html)
+
 ## Installation
 
   Install with [component(1)](http://component.io):
