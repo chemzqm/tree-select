@@ -152,7 +152,7 @@ TreeSelect.prototype.removeItem = function(id) {
 }
 
 TreeSelect.prototype.value = function(v) {
-  if (arguments.length === 0) return this._v;
+  if (arguments.length === 0) return this.source.val();
   var li = this.dropdown.find('[data-id="' + v + '"]');
   if (li.length > 0 && v.toString() !== this._v) {
     this._v = v.toString();
