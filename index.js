@@ -181,6 +181,7 @@ TreeSelect.prototype.reset = function() {
 }
 
 TreeSelect.prototype.rebuild = function(data) {
+  this.dropdown.html();
   this.renderData(data);
 }
 
