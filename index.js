@@ -154,6 +154,7 @@ TreeSelect.prototype.removeItem = function(id) {
 
 TreeSelect.prototype.value = function(v) {
   if (arguments.length === 0) return this.source.val();
+  var pre = this.source.val();
   var li = this.dropdown.find('[data-id="' + v + '"]');
   if (li.length > 0 && v.toString() !== this._v) {
     this._v = v.toString();
@@ -163,7 +164,9 @@ TreeSelect.prototype.value = function(v) {
     this.container.find('.treeselect-chosen').html(text);
     this.source.val(v);
     this.container.find('.treeselect-choice').removeClass('treeselect-default');
-    this.emit('change', v);
+    if (pre != v) {
+      this.emit('change', v);
+    }
   }
 }
 
