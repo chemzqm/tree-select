@@ -14,17 +14,19 @@
 
 ## API
 
-### TreeSelect(el, options)
+### TreeSelect(el, data)
 
 * `el` hidden input element.
-
-* `options` support `placeholder` and `data` array.
 
 * `data` should contain objects with `id` and `text` attributes or `name `and `values` attributes for unselectable group element.
 
 ### TreeSelect#placeholder(text)
 
 Set placeholder with `text`.
+
+### TreeSelect#selectDefault()
+
+Select the first value as default.
 
 ### TreeSelect#value([value])
 
