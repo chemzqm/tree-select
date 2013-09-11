@@ -16,41 +16,41 @@
 
 ## API
 
-### TreeSelect(el, data)
+### new TreeSelect(el, data)
 
 * `el` hidden input element.
 
 * `data` should contain objects with `id` and `text` attributes or `name `and `values` attributes for unselectable group element.
 
-### TreeSelect#placeholder(text)
+### .placeholder(text)
 
 Set placeholder with `text`.
 
-### TreeSelect#selectDefault()
+### .selectDefault()
 
 Select the first value as default.
 
-### TreeSelect#value([value])
+### .value([value])
 
 Get or set the value.
 
-### TreeSelect#show()
+### .show()
 
 With parent element which has class `group` shown.
 
-### TreeSelect#hide()
+### .hide()
 
 With parent element which has class `group` hidden.
 
-### TreeSelect#rebuild(data)
+### .rebuild(data)
 
 Reset all the options with `data`.
 
-### TreeSelect#remove()
+### .remove()
 
 Destroy the TreeSelect instance.
 
-### TreeSelect#reset()
+### .reset()
 
 ## License
 
