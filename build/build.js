@@ -27,9 +27,11 @@ function require(path, parent, orig) {
   // by invoking the module's
   // registered function
   if (!module.exports) {
-    module.exports = {};
-    module.client = module.component = true;
-    module.call(this, module.exports, require.relative(resolved), module);
+    var mod = {};
+    mod.exports = {};
+    mod.client = mod.component = true;
+    module.call(this, mod.exports, require.relative(resolved), mod);
+    module.exports = mod.exports;
   }
 
   return module.exports;
@@ -10057,13 +10059,15 @@ TreeSelect.prototype.placeholder = function(placeholder) {\n\
 TreeSelect.prototype.selectDefault = function() {\n\
   this._default = true;\n\
   var li = this.dropdown.find('.treeselect-item:first');\n\
-  if (li.length > 0) {\n\
+  var v = this.value();\n\
+  if (li.length > 0 && !v) {\n\
     var id = li.attr('data-id');\n\
     this.value(id);\n\
   }\n\
 }\n\
 \n\
 TreeSelect.prototype.renderData = function(data) {\n\
+  this.data = data;\n\
   data.forEach(function(o) {\n\
     var parent = this.dropdown;\n\
     if (Array.isArray(o.values)) {\n\
@@ -10076,6 +10080,7 @@ TreeSelect.prototype.renderData = function(data) {\n\
   var v = this.source.val(), li, id;\n\
   if (v) {\n\
     li = this.dropdown.find('[data-id=\"' + v + '\"]');\n\
+    //no change event\n\
     if (li.length === 0) return this.source.val('');\n\
     id = li.attr('data-id');\n\
     this.value(id);\n\
@@ -10092,6 +10097,7 @@ TreeSelect.prototype.initEvents = function() {\n\
   this.container.on('click', this._containerClick);\n\
   this._dropdownClick = this.dropdownClick.bind(this);\n\
   this.dropdown.on('click', this._dropdownClick);\n\
+  $(document).on('click', this.documentClick.bind(this));\n\
 }\n\
 \n\
 TreeSelect.prototype.remove = function() {\n\
@@ -10101,7 +10107,6 @@ TreeSelect.prototype.remove = function() {\n\
 }\n\
 \n\
 TreeSelect.prototype.containerClick = function(e) {\n\
-  e.stopPropagation();\n\
   var target = $(e.target);\n\
   if (this.container.hasClass('treeselect-dropdown-open')) {\n\
     this.container.removeClass('treeselect-dropdown-open');\n\
@@ -10111,7 +10116,6 @@ TreeSelect.prototype.containerClick = function(e) {\n\
     this.container.addClass('treeselect-dropdown-open');\n\
     this.dropdown.show();\n\
     this.container.addClass('treeselect-focus');\n\
-    $(document).one('click', this.documentClick.bind(this));\n\
   }\n\
 }\n\
 \n\
@@ -10138,27 +10142,11 @@ TreeSelect.prototype.dropdownClick = function(e) {\n\
 \n\
 TreeSelect.prototype.documentClick = function(e) {\n\
   var el = $(e.target).parents('.treeselect');\n\
-  if (el.length === 0) {\n\
+  if (!el.is(this.el)) {\n\
     this.container.removeClass('treeselect-focus');\n\
     this.container.removeClass('treeselect-dropdown-open');\n\
     this.dropdown.hide();\n\
   }\n\
-}\n\
-\n\
-TreeSelect.prototype.show = function() {\n\
-  var el = this.source;\n\
-  el.parent('.group').show();\n\
-  this.el.show();\n\
-  el.attr('disabled', false);\n\
-  return this;\n\
-}\n\
-\n\
-TreeSelect.prototype.hide = function() {\n\
-  var el = this.source;\n\
-  el.parent('.group').hide();\n\
-  this.el.hide();\n\
-  el.attr('disabled', true);\n\
-  return this;\n\
 }\n\
 \n\
 TreeSelect.prototype.addGroup = function(parent, data) {\n\
@@ -10183,38 +10171,45 @@ TreeSelect.prototype.removeItem = function(id) {\n\
 }\n\
 \n\
 TreeSelect.prototype.value = function(v) {\n\
-  if (arguments.length === 0) return this._v;\n\
-  var li = this.dropdown.find('[data-id=\"' + v + '\"]');\n\
-  if (li.length > 0 && v.toString() !== this._v) {\n\
-    this._v = v.toString();\n\
-    this.dropdown.find('.treeselect-item').show();\n\
+  if (arguments.length === 0) return this.source.val();\n\
+  var pre = this.source.val();\n\
+  this.dropdown.find('.treeselect-item').show();\n\
+  this.source.val(v);\n\
+  var text;\n\
+  if (!v) {\n\
+    text = this._placeholder;\n\
+    if (text) {\n\
+      this.container.find('.treeselect-chosen').html(text);\n\
+      this.container.find('.treeselect-choice').addClass('treeselect-default');\n\
+    }\n\
+  } else {\n\
+    var li = this.dropdown.find('[data-id=\"' + v + '\"]');\n\
     li.hide();\n\
-    var text = li.html();\n\
+    text = li.html();\n\
     this.container.find('.treeselect-chosen').html(text);\n\
-    this.source.val(v);\n\
     this.container.find('.treeselect-choice').removeClass('treeselect-default');\n\
+  }\n\
+  if (pre != v) {\n\
     this.emit('change', v);\n\
   }\n\
 }\n\
 \n\
 TreeSelect.prototype.reset = function() {\n\
-  this.source.val('');\n\
-  this._v = '';\n\
-  var text = this._placeholder;\n\
-  if (text) {\n\
-    this.container.find('.treeselect-chosen').html(text);\n\
-    this.container.find('.treeselect-choice').addClass('treeselect-default');\n\
-  }\n\
-  this.dropdown.find('.treeselect-item').show();\n\
-  this.emit('change', '');\n\
+  this.value('');\n\
 }\n\
 \n\
 TreeSelect.prototype.rebuild = function(data) {\n\
-  if (this.rendered) {\n\
-    this.reset();\n\
-    this.dropdown.html('');\n\
-  }\n\
+  if (data === this.data) return;\n\
+  if (!this.data) return this.renderData(data);\n\
+  this.reset();\n\
+  this.dropdown.find('.treeselect-item').remove();\n\
   this.renderData(data);\n\
+}\n\
+\n\
+TreeSelect.prototype.ids = function() {\n\
+  return $.map(this.dropdown.find('.treeselect-item'), function (li) {\n\
+    return $(li).attr('data-id');\n\
+  })\n\
 }\n\
 \n\
 module.exports = TreeSelect;\n\
