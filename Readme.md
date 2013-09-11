@@ -34,14 +34,6 @@ Select the first value as default.
 
 Get or set the value.
 
-### .show()
-
-With parent element which has class `group` shown.
-
-### .hide()
-
-With parent element which has class `group` hidden.
-
 ### .rebuild(data)
 
 Reset all the options with `data`.

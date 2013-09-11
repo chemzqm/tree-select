@@ -116,22 +116,6 @@ TreeSelect.prototype.documentClick = function(e) {
   }
 }
 
-TreeSelect.prototype.show = function() {
-  var el = this.source;
-  el.parent('.group').show();
-  this.el.show();
-  el.attr('disabled', false);
-  return this;
-}
-
-TreeSelect.prototype.hide = function() {
-  var el = this.source;
-  el.parent('.group').hide();
-  this.el.hide();
-  el.attr('disabled', true);
-  return this;
-}
-
 TreeSelect.prototype.addGroup = function(parent, data) {
   var title = $('<div class="treeselect-group"><i class="treeselect-arrow"></i>' + data.name + '</div>');
   var ul = $('<ul class="treeselect-list"></ul>');
