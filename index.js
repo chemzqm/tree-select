@@ -26,7 +26,8 @@ TreeSelect.prototype.placeholder = function(placeholder) {
 TreeSelect.prototype.selectDefault = function() {
   this._default = true;
   var li = this.dropdown.find('.treeselect-item:first');
-  if (li.length > 0) {
+  var v = this.value();
+  if (li.length > 0 && !v) {
     var id = li.attr('data-id');
     this.value(id);
   }
@@ -63,6 +64,7 @@ TreeSelect.prototype.initEvents = function() {
   this.container.on('click', this._containerClick);
   this._dropdownClick = this.dropdownClick.bind(this);
   this.dropdown.on('click', this._dropdownClick);
+  $(document).on('click', this.documentClick.bind(this));
 }
 
 TreeSelect.prototype.remove = function() {
@@ -72,7 +74,6 @@ TreeSelect.prototype.remove = function() {
 }
 
 TreeSelect.prototype.containerClick = function(e) {
-  e.stopPropagation();
   var target = $(e.target);
   if (this.container.hasClass('treeselect-dropdown-open')) {
     this.container.removeClass('treeselect-dropdown-open');
@@ -82,7 +83,6 @@ TreeSelect.prototype.containerClick = function(e) {
     this.container.addClass('treeselect-dropdown-open');
     this.dropdown.show();
     this.container.addClass('treeselect-focus');
-    $(document).one('click', this.documentClick.bind(this));
   }
 }
 
@@ -109,7 +109,7 @@ TreeSelect.prototype.dropdownClick = function(e) {
 
 TreeSelect.prototype.documentClick = function(e) {
   var el = $(e.target).parents('.treeselect');
-  if (el.length === 0) {
+  if (!el.is(this.el)) {
     this.container.removeClass('treeselect-focus');
     this.container.removeClass('treeselect-dropdown-open');
     this.dropdown.hide();
@@ -158,8 +158,9 @@ TreeSelect.prototype.value = function(v) {
   var pre = this.source.val();
   this.dropdown.find('.treeselect-item').show();
   this.source.val(v);
+  var text;
   if (!v) {
-    var text = this._placeholder;
+    text = this._placeholder;
     if (text) {
       this.container.find('.treeselect-chosen').html(text);
       this.container.find('.treeselect-choice').addClass('treeselect-default');
@@ -167,7 +168,7 @@ TreeSelect.prototype.value = function(v) {
   } else {
     var li = this.dropdown.find('[data-id="' + v + '"]');
     li.hide();
-    var text = li.html();
+    text = li.html();
     this.container.find('.treeselect-chosen').html(text);
     this.container.find('.treeselect-choice').removeClass('treeselect-default');
   }
@@ -181,7 +182,10 @@ TreeSelect.prototype.reset = function() {
 }
 
 TreeSelect.prototype.rebuild = function(data) {
-  this.dropdown.html();
+  if (data === this.data) return;
+  if (!this.data) return this.renderData(data);
+  this.reset();
+  this.dropdown.find('.treeselect-item').remove();
   this.renderData(data);
 }
 
