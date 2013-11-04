@@ -2,6 +2,7 @@ var Emitter = require('emitter');
 var template = require('./template');
 var $ = require('jquery');
 var keyname = require('keyname');
+var equals = require('equals');
 
 function TreeSelect (input, data) {
   this.source = $(input);
@@ -166,7 +167,7 @@ TreeSelect.prototype.reset = function() {
 }
 
 TreeSelect.prototype.rebuild = function(data) {
-  if (data === this.data) return;
+  if (equals(this.data, data)) return;
   if (!this.data) return this.renderData(data);
   this.reset();
   this.dropdown.find('.treeselect-item').remove();
