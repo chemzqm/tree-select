@@ -170,6 +170,7 @@ TreeSelect.prototype.rebuild = function(data) {
   if (!this.data) return this.renderData(data);
   this.reset();
   this.dropdown.find('.treeselect-item').remove();
+  this.dropdown.find('.treeselect-group').remove();
   this.renderData(data);
 }
 
