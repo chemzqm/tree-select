@@ -23,6 +23,7 @@
       <li>只支持单一选项</li>
     </ul>
     <button id="reset">reset</button>
+    <button id="rebuild0">rebuild0</button>
     <div class="group">
       <label for="select">测试</label>
       <input type="hidden" id="select" name="select" style="width:300px" class="select2-offscreen" value="3">
@@ -69,10 +70,25 @@
           id: 5,
           text: '曝光引导'
         }]
+        }, {
+        name: '整合报告',
+        values: [{
+          id: 6,
+          text: '日期'
+        }]
       }]
       var el = document.getElementById('select');
       var select = new TreeSelect(el, data);
       select.placeholder('请选择指标');
+      (function(){
+        var rebuild = document.getElementById('rebuild0');
+        rebuild.addEventListener('click', function(){
+        select.rebuild([{
+            id: 1,
+            text: Math.random() + ''
+          }])
+        })
+      })();
 
       var reset = document.getElementById('reset');
       reset.addEventListener('click', function(){

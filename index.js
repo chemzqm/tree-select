@@ -2,12 +2,14 @@ var Emitter = require('emitter');
 var template = require('./template');
 var $ = require('jquery');
 var keyname = require('keyname');
+var equals = require('equals');
 
 function TreeSelect (input, data) {
   this.source = $(input);
   this.el = $(template).insertBefore(input);
   this.container= this.el.find('.treeselect-container');
   this.dropdown = this.el.find('.treeselect-drop');
+  this.input = this.el.find('.treeselect-input');
   var w = this.source.width();
   this.el.width(w);
   if (data) { this.renderData(data); }
@@ -36,7 +38,7 @@ TreeSelect.prototype.selectDefault = function() {
 TreeSelect.prototype.renderData = function(data) {
   this.data = data;
   data.forEach(function(o) {
-    var parent = this.dropdown;
+    var parent = this.dropdown.find('.treeselect-results');
     if (Array.isArray(o.values)) {
       this.addGroup(parent, o);
     } else {
@@ -64,7 +66,28 @@ TreeSelect.prototype.initEvents = function() {
   this.container.on('click', this._containerClick);
   this._dropdownClick = this.dropdownClick.bind(this);
   this.dropdown.on('click', this._dropdownClick);
+  this._filter = this.filter.bind(this);
+  this.input.on('keyup', this._filter);
   $(document).on('click', this.documentClick.bind(this));
+}
+
+TreeSelect.prototype.filter = function() {
+  var str = this.input.val().toLowerCase();
+  var items = this.dropdown.find('.treeselect-item');
+  this.dropdown.find('.treeselect-list').show();
+  this.dropdown.find('.treeselect-group').addClass('treeselect-collpase');
+  if (!str) {
+    items.show();
+  } else {
+    items.each(function(i) {
+      var text = this.innerHTML.toLowerCase();
+      if (text.indexOf(str) !== -1) {
+        $(this).show();
+      } else {
+        $(this).hide();
+      }
+    })
+  }
 }
 
 TreeSelect.prototype.remove = function() {
@@ -166,10 +189,11 @@ TreeSelect.prototype.reset = function() {
 }
 
 TreeSelect.prototype.rebuild = function(data) {
-  if (data === this.data) return;
+  if (equals(this.data, data)) return;
   if (!this.data) return this.renderData(data);
   this.reset();
   this.dropdown.find('.treeselect-item').remove();
+  this.dropdown.find('.treeselect-group').remove();
   this.renderData(data);
 }
 
