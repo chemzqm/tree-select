@@ -26,11 +26,13 @@ function require(path, parent, orig) {
   // perform real require()
   // by invoking the module's
   // registered function
-  if (!module.exports) {
+  if (!module._resolving && !module.exports) {
     var mod = {};
     mod.exports = {};
     mod.client = mod.component = true;
+    module._resolving = true;
     module.call(this, mod.exports, require.relative(resolved), mod);
+    delete module._resolving;
     module.exports = mod.exports;
   }
 
@@ -10030,17 +10032,206 @@ if ( typeof define === \"function\" && define.amd && define.amd.jQuery ) {\n\
 })( window );\n\
 //@ sourceURL=component-jquery/index.js"
 ));
+require.register("jkroso-type/index.js", Function("exports, require, module",
+"\n\
+/**\n\
+ * refs\n\
+ */\n\
+\n\
+var toString = Object.prototype.toString;\n\
+\n\
+/**\n\
+ * Return the type of `val`.\n\
+ *\n\
+ * @param {Mixed} val\n\
+ * @return {String}\n\
+ * @api public\n\
+ */\n\
+\n\
+module.exports = function(v){\n\
+  // .toString() is slow so try avoid it\n\
+  return typeof v === 'object'\n\
+    ? types[toString.call(v)]\n\
+    : typeof v\n\
+};\n\
+\n\
+var types = {\n\
+  '[object Function]': 'function',\n\
+  '[object Date]': 'date',\n\
+  '[object RegExp]': 'regexp',\n\
+  '[object Arguments]': 'arguments',\n\
+  '[object Array]': 'array',\n\
+  '[object String]': 'string',\n\
+  '[object Null]': 'null',\n\
+  '[object Undefined]': 'undefined',\n\
+  '[object Number]': 'number',\n\
+  '[object Boolean]': 'boolean',\n\
+  '[object Object]': 'object',\n\
+  '[object Text]': 'textnode',\n\
+  '[object Uint8Array]': '8bit-array',\n\
+  '[object Uint16Array]': '16bit-array',\n\
+  '[object Uint32Array]': '32bit-array',\n\
+  '[object Uint8ClampedArray]': '8bit-array',\n\
+  '[object Error]': 'error'\n\
+}\n\
+\n\
+if (typeof window != 'undefined') {\n\
+  for (var el in window) if (/^HTML\\w+Element$/.test(el)) {\n\
+    types['[object '+el+']'] = 'element'\n\
+  }\n\
+}\n\
+\n\
+module.exports.types = types\n\
+//@ sourceURL=jkroso-type/index.js"
+));
+require.register("jkroso-equals/index.js", Function("exports, require, module",
+"\n\
+var type = require('type')\n\
+\n\
+/**\n\
+ * assert all values are equal\n\
+ *\n\
+ * @param {Any} [...]\n\
+ * @return {Boolean}\n\
+ */\n\
+\n\
+module.exports = function(){\n\
+\tvar i = arguments.length - 1\n\
+\twhile (i > 0) {\n\
+\t\tif (!compare(arguments[i], arguments[--i])) return false\n\
+\t}\n\
+\treturn true\n\
+}\n\
+\n\
+// (any, any, [array]) -> boolean\n\
+function compare(a, b, memos){\n\
+\t// All identical values are equivalent\n\
+\tif (a === b) return true\n\
+\tvar fnA = types[type(a)]\n\
+\tif (fnA !== types[type(b)]) return false\n\
+\treturn fnA ? fnA(a, b, memos) : false\n\
+}\n\
+\n\
+var types = {}\n\
+\n\
+// (Number) -> boolean\n\
+types.number = function(a){\n\
+\t// NaN check\n\
+\treturn a !== a\n\
+}\n\
+\n\
+// (function, function, array) -> boolean\n\
+types['function'] = function(a, b, memos){\n\
+\treturn a.toString() === b.toString()\n\
+\t\t// Functions can act as objects\n\
+\t  && types.object(a, b, memos) \n\
+\t\t&& compare(a.prototype, b.prototype)\n\
+}\n\
+\n\
+// (date, date) -> boolean\n\
+types.date = function(a, b){\n\
+\treturn +a === +b\n\
+}\n\
+\n\
+// (regexp, regexp) -> boolean\n\
+types.regexp = function(a, b){\n\
+\treturn a.toString() === b.toString()\n\
+}\n\
+\n\
+// (DOMElement, DOMElement) -> boolean\n\
+types.element = function(a, b){\n\
+\treturn a.outerHTML === b.outerHTML\n\
+}\n\
+\n\
+// (textnode, textnode) -> boolean\n\
+types.textnode = function(a, b){\n\
+\treturn a.textContent === b.textContent\n\
+}\n\
+\n\
+// decorate `fn` to prevent it re-checking objects\n\
+// (function) -> function\n\
+function memoGaurd(fn){\n\
+\treturn function(a, b, memos){\n\
+\t\tif (!memos) return fn(a, b, [])\n\
+\t\tvar i = memos.length, memo\n\
+\t\twhile (memo = memos[--i]) {\n\
+\t\t\tif (memo[0] === a && memo[1] === b) return true\n\
+\t\t}\n\
+\t\treturn fn(a, b, memos)\n\
+\t}\n\
+}\n\
+\n\
+types['arguments'] =\n\
+types.array = memoGaurd(compareArrays)\n\
+\n\
+// (array, array, array) -> boolean\n\
+function compareArrays(a, b, memos){\n\
+\tvar i = a.length\n\
+\tif (i !== b.length) return false\n\
+\tmemos.push([a, b])\n\
+\twhile (i--) {\n\
+\t\tif (!compare(a[i], b[i], memos)) return false\n\
+\t}\n\
+\treturn true\n\
+}\n\
+\n\
+types.object = memoGaurd(compareObjects)\n\
+\n\
+// (object, object, array) -> boolean\n\
+function compareObjects(a, b, memos) {\n\
+\tvar ka = getEnumerableProperties(a)\n\
+\tvar kb = getEnumerableProperties(b)\n\
+\tvar i = ka.length\n\
+\n\
+\t// same number of properties\n\
+\tif (i !== kb.length) return false\n\
+\n\
+\t// although not necessarily the same order\n\
+\tka.sort()\n\
+\tkb.sort()\n\
+\n\
+\t// cheap key test\n\
+\twhile (i--) if (ka[i] !== kb[i]) return false\n\
+\n\
+\t// remember\n\
+\tmemos.push([a, b])\n\
+\n\
+\t// iterate again this time doing a thorough check\n\
+\ti = ka.length\n\
+\twhile (i--) {\n\
+\t\tvar key = ka[i]\n\
+\t\tif (!compare(a[key], b[key], memos)) return false\n\
+\t}\n\
+\n\
+\treturn true\n\
+}\n\
+\n\
+// (object) -> array\n\
+function getEnumerableProperties (object) {\n\
+\tvar result = []\n\
+\tfor (var k in object) if (k !== 'constructor') {\n\
+\t\tresult.push(k)\n\
+\t}\n\
+\treturn result\n\
+}\n\
+\n\
+// expose compare\n\
+module.exports.compare = compare\n\
+//@ sourceURL=jkroso-equals/index.js"
+));
 require.register("tree-select/index.js", Function("exports, require, module",
 "var Emitter = require('emitter');\n\
 var template = require('./template');\n\
 var $ = require('jquery');\n\
 var keyname = require('keyname');\n\
+var equals = require('equals');\n\
 \n\
 function TreeSelect (input, data) {\n\
   this.source = $(input);\n\
   this.el = $(template).insertBefore(input);\n\
   this.container= this.el.find('.treeselect-container');\n\
   this.dropdown = this.el.find('.treeselect-drop');\n\
+  this.input = this.el.find('.treeselect-input');\n\
   var w = this.source.width();\n\
   this.el.width(w);\n\
   if (data) { this.renderData(data); }\n\
@@ -10069,7 +10260,7 @@ TreeSelect.prototype.selectDefault = function() {\n\
 TreeSelect.prototype.renderData = function(data) {\n\
   this.data = data;\n\
   data.forEach(function(o) {\n\
-    var parent = this.dropdown;\n\
+    var parent = this.dropdown.find('.treeselect-results');\n\
     if (Array.isArray(o.values)) {\n\
       this.addGroup(parent, o);\n\
     } else {\n\
@@ -10097,7 +10288,28 @@ TreeSelect.prototype.initEvents = function() {\n\
   this.container.on('click', this._containerClick);\n\
   this._dropdownClick = this.dropdownClick.bind(this);\n\
   this.dropdown.on('click', this._dropdownClick);\n\
+  this._filter = this.filter.bind(this);\n\
+  this.input.on('keyup', this._filter);\n\
   $(document).on('click', this.documentClick.bind(this));\n\
+}\n\
+\n\
+TreeSelect.prototype.filter = function() {\n\
+  var str = this.input.val().toLowerCase();\n\
+  var items = this.dropdown.find('.treeselect-item');\n\
+  this.dropdown.find('.treeselect-list').show();\n\
+  this.dropdown.find('.treeselect-group').addClass('treeselect-collpase');\n\
+  if (!str) {\n\
+    items.show();\n\
+  } else {\n\
+    items.each(function(i) {\n\
+      var text = this.innerHTML.toLowerCase();\n\
+      if (text.indexOf(str) !== -1) {\n\
+        $(this).show();\n\
+      } else {\n\
+        $(this).hide();\n\
+      }\n\
+    })\n\
+  }\n\
 }\n\
 \n\
 TreeSelect.prototype.remove = function() {\n\
@@ -10199,10 +10411,11 @@ TreeSelect.prototype.reset = function() {\n\
 }\n\
 \n\
 TreeSelect.prototype.rebuild = function(data) {\n\
-  if (data === this.data) return;\n\
+  if (equals(this.data, data)) return;\n\
   if (!this.data) return this.renderData(data);\n\
   this.reset();\n\
   this.dropdown.find('.treeselect-item').remove();\n\
+  this.dropdown.find('.treeselect-group').remove();\n\
   this.renderData(data);\n\
 }\n\
 \n\
@@ -10224,10 +10437,16 @@ require.register("tree-select/template.js", Function("exports, require, module",
     </a>\\n\
   </div>\\n\
   <div class=\"treeselect-drop treeselect-drop-active\">\\n\
+    <div class=\"treeselect-search\">\\n\
+      <input type=\"text\" autocomplete=\"off\" autocorrect=\"off\" autocapitalize=\"off\" spellcheck=\"false\" class=\"treeselect-input\">\\n\
+    </div>\\n\
+    <div class=\"treeselect-results\">\\n\
+    </div>\\n\
   </div>\\n\
 </div>\\n\
 ';//@ sourceURL=tree-select/template.js"
 ));
+
 
 
 
@@ -10240,5 +10459,9 @@ require.alias("component-keyname/index.js", "keyname/index.js");
 
 require.alias("component-jquery/index.js", "tree-select/deps/jquery/index.js");
 require.alias("component-jquery/index.js", "jquery/index.js");
+
+require.alias("jkroso-equals/index.js", "tree-select/deps/equals/index.js");
+require.alias("jkroso-equals/index.js", "equals/index.js");
+require.alias("jkroso-type/index.js", "jkroso-equals/deps/type/index.js");
 
 require.alias("tree-select/index.js", "tree-select/index.js");
