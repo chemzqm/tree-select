@@ -2,7 +2,7 @@
   "name": "tree-select",
   "repo": "chemzqm/tree-select",
   "description": "A simple tree select component",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "keywords": [],
   "dependencies": {
     "component/emitter": "*",
