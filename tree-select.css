@@ -309,7 +309,8 @@ ul .treeselect-item {
   padding: 3px 0px 4px 20px;
 }
 
-.treeselect-item:hover {
+.treeselect-item:hover,
+.treeselect-item.active {
   cursor: pointer;
   background: #3875d7;
   color: #fff;
