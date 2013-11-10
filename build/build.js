@@ -10293,23 +10293,69 @@ TreeSelect.prototype.initEvents = function() {\n\
   $(document).on('click', this.documentClick.bind(this));\n\
 }\n\
 \n\
-TreeSelect.prototype.filter = function() {\n\
+TreeSelect.prototype.filter = function(e) {\n\
   var str = this.input.val().toLowerCase();\n\
   var items = this.dropdown.find('.treeselect-item');\n\
+  var key = keyname(e.which);\n\
   this.dropdown.find('.treeselect-list').show();\n\
   this.dropdown.find('.treeselect-group').addClass('treeselect-collpase');\n\
-  if (!str) {\n\
-    items.show();\n\
-  } else {\n\
-    items.each(function(i) {\n\
-      var text = this.innerHTML.toLowerCase();\n\
-      if (text.indexOf(str) !== -1) {\n\
-        $(this).show();\n\
-      } else {\n\
-        $(this).hide();\n\
+  switch(key) {\n\
+    case 'up':\n\
+      this.prev();\n\
+      break;\n\
+    case 'down':\n\
+      this.next();\n\
+      break;\n\
+    case 'enter':\n\
+      var el = this.dropdown.find('.treeselect-item.active');\n\
+      if (el.length) {\n\
+        this.select(el);\n\
       }\n\
-    })\n\
+      break;\n\
+    default:\n\
+      if (!str) {\n\
+        items.show();\n\
+      } else {\n\
+        items.each(function(i) {\n\
+          var text = this.innerHTML.toLowerCase();\n\
+          if (text.indexOf(str) !== -1) {\n\
+            $(this).show();\n\
+          } else {\n\
+            $(this).hide();\n\
+          }\n\
+        })\n\
+      }\n\
   }\n\
+}\n\
+\n\
+TreeSelect.prototype.prev = function() {\n\
+  var items = this.dropdown.find('.treeselect-item');\n\
+  var lis = items.filter(':visible');\n\
+  var curr, index = lis.length - 1;\n\
+  lis.each(function(i) {\n\
+    if ($(this).hasClass('active')) {\n\
+      curr = $(this);\n\
+      index = i - 1;\n\
+    }\n\
+  })\n\
+  items.removeClass('active');\n\
+  index = index === -1? lis.length - 1 : index;\n\
+  lis.eq(index).addClass('active');\n\
+}\n\
+\n\
+TreeSelect.prototype.next = function() {\n\
+  var items = this.dropdown.find('.treeselect-item');\n\
+  var lis = items.filter(':visible');\n\
+  var curr, index = 0;\n\
+  lis.each(function(i) {\n\
+    if ($(this).hasClass('active')) {\n\
+      curr = $(this);\n\
+      index = i + 1;\n\
+    }\n\
+  })\n\
+  items.removeClass('active');\n\
+  index = index === lis.length? 0 : index;\n\
+  lis.eq(index).addClass('active');\n\
 }\n\
 \n\
 TreeSelect.prototype.remove = function() {\n\
@@ -10328,6 +10374,7 @@ TreeSelect.prototype.containerClick = function(e) {\n\
     this.container.addClass('treeselect-dropdown-open');\n\
     this.dropdown.show();\n\
     this.container.addClass('treeselect-focus');\n\
+    this.input.focus();\n\
   }\n\
 }\n\
 \n\
@@ -10344,12 +10391,19 @@ TreeSelect.prototype.dropdownClick = function(e) {\n\
       group.addClass('treeselect-collpase');\n\
     }\n\
   } else if (el.hasClass('treeselect-item')) {\n\
-    var id = el.attr('data-id');\n\
-    this.value(id);\n\
-    this.container.removeClass('treeselect-dropdown-open');\n\
-    this.container.removeClass('treeselect-focus');\n\
-    this.dropdown.hide();\n\
+    this.select(el);\n\
   }\n\
+}\n\
+\n\
+TreeSelect.prototype.select = function(el) {\n\
+  var id = el.attr('data-id');\n\
+  this.value(id);\n\
+  this.container.removeClass('treeselect-dropdown-open');\n\
+  this.container.removeClass('treeselect-focus');\n\
+  this.dropdown.find('.treeselect-list').hide();\n\
+  this.dropdown.find('.treeselect-group').removeClass('treeselect-collpase');\n\
+  this.input.val('');\n\
+  this.dropdown.hide();\n\
 }\n\
 \n\
 TreeSelect.prototype.documentClick = function(e) {\n\
