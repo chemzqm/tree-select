@@ -106,6 +106,7 @@ TreeSelect.prototype.containerClick = function(e) {
     this.container.addClass('treeselect-dropdown-open');
     this.dropdown.show();
     this.container.addClass('treeselect-focus');
+    this.input.focus();
   }
 }
 
