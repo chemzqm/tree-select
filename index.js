@@ -71,23 +71,69 @@ TreeSelect.prototype.initEvents = function() {
   $(document).on('click', this.documentClick.bind(this));
 }
 
-TreeSelect.prototype.filter = function() {
+TreeSelect.prototype.filter = function(e) {
   var str = this.input.val().toLowerCase();
   var items = this.dropdown.find('.treeselect-item');
+  var key = keyname(e.which);
   this.dropdown.find('.treeselect-list').show();
   this.dropdown.find('.treeselect-group').addClass('treeselect-collpase');
-  if (!str) {
-    items.show();
-  } else {
-    items.each(function(i) {
-      var text = this.innerHTML.toLowerCase();
-      if (text.indexOf(str) !== -1) {
-        $(this).show();
-      } else {
-        $(this).hide();
+  switch(key) {
+    case 'up':
+      this.prev();
+      break;
+    case 'down':
+      this.next();
+      break;
+    case 'enter':
+      var el = this.dropdown.find('.treeselect-item.active');
+      if (el.length) {
+        this.select(el);
       }
-    })
+      break;
+    default:
+      if (!str) {
+        items.show();
+      } else {
+        items.each(function(i) {
+          var text = this.innerHTML.toLowerCase();
+          if (text.indexOf(str) !== -1) {
+            $(this).show();
+          } else {
+            $(this).hide();
+          }
+        })
+      }
   }
+}
+
+TreeSelect.prototype.prev = function() {
+  var items = this.dropdown.find('.treeselect-item');
+  var lis = items.filter(':visible');
+  var curr, index = lis.length - 1;
+  lis.each(function(i) {
+    if ($(this).hasClass('active')) {
+      curr = $(this);
+      index = i - 1;
+    }
+  })
+  items.removeClass('active');
+  index = index === -1? lis.length - 1 : index;
+  lis.eq(index).addClass('active');
+}
+
+TreeSelect.prototype.next = function() {
+  var items = this.dropdown.find('.treeselect-item');
+  var lis = items.filter(':visible');
+  var curr, index = 0;
+  lis.each(function(i) {
+    if ($(this).hasClass('active')) {
+      curr = $(this);
+      index = i + 1;
+    }
+  })
+  items.removeClass('active');
+  index = index === lis.length? 0 : index;
+  lis.eq(index).addClass('active');
 }
 
 TreeSelect.prototype.remove = function() {
@@ -123,12 +169,19 @@ TreeSelect.prototype.dropdownClick = function(e) {
       group.addClass('treeselect-collpase');
     }
   } else if (el.hasClass('treeselect-item')) {
-    var id = el.attr('data-id');
-    this.value(id);
-    this.container.removeClass('treeselect-dropdown-open');
-    this.container.removeClass('treeselect-focus');
-    this.dropdown.hide();
+    this.select(el);
   }
+}
+
+TreeSelect.prototype.select = function(el) {
+  var id = el.attr('data-id');
+  this.value(id);
+  this.container.removeClass('treeselect-dropdown-open');
+  this.container.removeClass('treeselect-focus');
+  this.dropdown.find('.treeselect-list').hide();
+  this.dropdown.find('.treeselect-group').removeClass('treeselect-collpase');
+  this.input.val('');
+  this.dropdown.hide();
 }
 
 TreeSelect.prototype.documentClick = function(e) {
