@@ -93,7 +93,13 @@ TreeSelect.prototype.filter = function(e) {
       break;
     default:
       if (!str) {
-        items.show();
+        items.removeClass('active');
+        items.each(function(i) {
+          var id = $(this).attr('data-id');
+          if (id != v) {
+            $(this).show();
+          }
+        })
       } else {
         items.each(function(i) {
           var text = this.innerHTML.toLowerCase();
