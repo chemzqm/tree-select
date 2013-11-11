@@ -77,6 +77,7 @@ TreeSelect.prototype.filter = function(e) {
   var key = keyname(e.which);
   this.dropdown.find('.treeselect-list').show();
   this.dropdown.find('.treeselect-group').addClass('treeselect-collpase');
+  var v = this.value();
   switch(key) {
     case 'up':
       this.prev();
@@ -96,7 +97,8 @@ TreeSelect.prototype.filter = function(e) {
       } else {
         items.each(function(i) {
           var text = this.innerHTML.toLowerCase();
-          if (text.indexOf(str) !== -1) {
+          var id = $(this).attr('data-id');
+          if (id != v && text.indexOf(str) !== -1) {
             $(this).show();
           } else {
             $(this).hide();
