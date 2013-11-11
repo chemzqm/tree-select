@@ -10299,6 +10299,7 @@ TreeSelect.prototype.filter = function(e) {\n\
   var key = keyname(e.which);\n\
   this.dropdown.find('.treeselect-list').show();\n\
   this.dropdown.find('.treeselect-group').addClass('treeselect-collpase');\n\
+  var v = this.value();\n\
   switch(key) {\n\
     case 'up':\n\
       this.prev();\n\
@@ -10318,7 +10319,8 @@ TreeSelect.prototype.filter = function(e) {\n\
       } else {\n\
         items.each(function(i) {\n\
           var text = this.innerHTML.toLowerCase();\n\
-          if (text.indexOf(str) !== -1) {\n\
+          var id = $(this).attr('data-id');\n\
+          if (id != v && text.indexOf(str) !== -1) {\n\
             $(this).show();\n\
           } else {\n\
             $(this).hide();\n\

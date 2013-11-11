@@ -17,12 +17,13 @@
   display: inline-block;
   width: 100%;
   min-height: 26px;
-  margin: 0;
+  margin-bottom: 5px;
   padding-left: 4px;
   padding-right: 4px;
   position: relative;
   z-index: 10000;
   white-space: nowrap;
+
 }
 
 .treeselect-search, .treeselect-search input {
