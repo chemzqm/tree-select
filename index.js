@@ -229,7 +229,7 @@ TreeSelect.prototype.value = function(v) {
   this.source.val(v);
   var text;
   if (!v) {
-    text = this._placeholder;
+    text = this._placeholder || '请选择...';
     if (text) {
       this.container.find('.treeselect-chosen').html(text);
       this.container.find('.treeselect-choice').addClass('treeselect-default');
